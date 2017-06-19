@@ -1,0 +1,135 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.10/handlebars.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
+    <script type="text/javascript" src="/js/utils.js"></script>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <style>
+    body {
+        padding: 20px;
+    }
+    
+    #search-form,
+    .form-control {
+        margin-bottom: 20px;
+    }
+    
+    .cover {
+        width: 300px;
+        height: 300px;
+        display: inline-block;
+        background-size: cover;
+    }
+    
+    .cover:hover {
+        cursor: pointer;
+    }
+    
+    .cover.playing {
+        border: 5px solid #e45343;
+    }
+    </style>
+    <script type="text/javascript">
+    function start() {
+
+        var getArtistInfo = function(query) {
+        	console.log('getArtistInfo');
+            console.log(query);
+
+            $.ajax({
+                url: '/info/artist',
+                data: {
+                    q: query
+                },
+                success: function(response) {
+                    console.log("search response->" + JSON.stringify(response));
+                    resultsPlaceholder.innerHTML += template(response);
+                }
+            });
+        };
+
+        var graphArtist = function(query) {
+            console.log('getArtistInfo');
+            console.log(query);
+
+            $.ajax({
+                url: '/page/graph?id=' + query,
+                data: {
+                    q: query
+                },
+                success: function(response) {
+                    console.log("search response->" + JSON.stringify(response));
+                    resultsPlaceholder.innerHTML += template(response);
+                }
+            });
+        };
+
+        var getArtistAlbumInfo = function(query) {
+        	var url = '/info/artist/' + query + '/albums';
+        	console.log('getArtistAlbumInfo');
+            console.log(url);
+
+            $.ajax({
+                url: url,
+                success: function(response) {
+                    console.log("search response->" + JSON.stringify(response));
+                    resultsPlaceholder.innerHTML += albumTemplate(response);
+                }
+            });
+        };
+
+Handlebars.registerHelper('toJSON', function(obj) {
+    return JSON.stringify(obj, null, 3);
+});
+Handlebars.registerHelper('us', function(obj) {
+    return _.contains(obj, 'US');
+});
+
+        // find template and compile it
+        var templateTest = document.getElementById('results-template');
+        console.log('->' + JSON.stringify(templateTest));
+
+        var templateSource = document.getElementById('results-template').innerHTML,
+            template = Handlebars.compile(templateSource);
+
+        var albumTemplateSource = document.getElementById('albums-template').innerHTML,
+			albumTemplate = Handlebars.compile(albumTemplateSource);
+        
+		var resultsPlaceholder = document.getElementById('results');
+
+        console.log('templateSource ->' + JSON.stringify(templateSource));
+        console.log('albumTemplateSource ->' + JSON.stringify(albumTemplateSource));
+        console.log('resultsPlaceholder ->' + JSON.stringify(resultsPlaceholder));
+
+graphArtist(Utilities.getAllUrlParams().id);
+        getArtistInfo(Utilities.getAllUrlParams().id);
+        getArtistAlbumInfo(Utilities.getAllUrlParams().id);
+    };
+
+    window.onload = start;
+    </script>
+</head>
+
+<body>
+    <div id="results"></div>
+    <script id="results-template" type="text/x-handlebars-template">
+        {{name}}<br>
+    </script>
+    <script id="albums-template" type="text/x-handlebars-template">
+        {{#each items}}
+            <!-- {{name}}<br> -->
+            <!-- {{toJSON .}}<br> -->
+            <!-- {{available_markets}}<br> -->
+            {{#if (us available_markets)}}
+                  <div style="background-image:url({{images.0.url}})" data-album-id="{{id}}" class="cover" title="{{name}}"></div>
+            {{/if}}
+
+
+
+        {{/each}}
+    </script>
+</body>
+
+</html>

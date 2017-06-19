@@ -1,0 +1,113 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.10/handlebars.js"></script>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <style>
+    body {
+        padding: 20px;
+    }
+    
+    #search-form,
+    .form-control {
+        margin-bottom: 20px;
+    }
+    
+    .cover {
+        width: 300px;
+        height: 300px;
+        display: inline-block;
+        background-size: cover;
+    }
+    
+    .cover:hover {
+        cursor: pointer;
+    }
+    
+    .cover.playing {
+        border: 5px solid #e45343;
+    }
+    </style>
+    <script type="text/javascript">
+    function start() {
+
+        // find template and compile it
+        var templateTest = document.getElementById('results-template');
+        console.log('->' + templateTest);
+        var templateSource = document.getElementById('results-template').innerHTML,
+            template = Handlebars.compile(templateSource),
+            resultsPlaceholder = document.getElementById('results'),
+            playingCssClass = 'playing',
+            audioObject = null;
+
+        var fetchTracks = function(albumId, callback) {
+            $.ajax({
+                url: 'https://api.spotify.com/v1/albums/' + albumId,
+                success: function(response) {
+                    callback(response);
+                }
+            });
+        };
+
+        var relateArtist = function(query) {
+            console.log(query);
+
+            $.ajax({
+                url: '/relateartist',
+                data: {
+                    q: query
+                },
+                success: function(response) {
+                    console.log("related response->" + JSON.stringify(response));
+            resultsPlaceholder.innerHTML = template(response);
+            // console.log('->' + resultsPlaceholder);
+            // resultsPlaceholder.innerHTML = 'test';
+                }
+            });
+
+                // $.ajax({
+                //     url: '/search',
+                //     data: {
+                //         q: query,
+                //         type: 'album'
+                //     }
+                // }).done(function(data) {
+                //     console.log(data);
+                // });
+
+
+        };
+
+
+        document.getElementById('relate-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            relateArtist(document.getElementById('query').value);
+        }, false);
+
+
+    };
+
+    window.onload = start;
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Find Related Artist</h1>
+        <p>Pasted an artist's id then click on "Relate".</p>
+        <form id="relate-form">
+            <input type="text" id="query" value="" class="form-control" placeholder="Type an Artist Id" />
+            5a2EaR3hamoenG9rDuVn8j<br>
+            <input type="submit" id="search" class="btn btn-primary" value="Relate" />
+        </form>
+        <div id="results"></div>
+    </div>
+    <script id="results-template" type="text/x-handlebars-template">
+        {{#each albums.items}}
+        <div style="background-image:url({{images.0.url}})" data-album-id="{{id}}" class="cover"></div>
+        {{/each}}
+    </script>
+</body>
+
+</html>
