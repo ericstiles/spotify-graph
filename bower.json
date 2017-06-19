@@ -1,0 +1,25 @@
+{
+  "name": "authorization_code",
+  "homepage": "https://github.com/spotify/web-api-auth-examples",
+  "authors": [
+    "EricStiles <ets04uga@yahoo.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "cytoscape": "^3.1.1",
+    "jquery": "^3.2.1",
+    "cytoscape-cxtmenu": "^2.10.3",
+    "cytoscape-context-menus": "^3.0.0",
+    "cytoscape-expand-collapse": "^3.0.3"
+  }
+}
