@@ -7,63 +7,6 @@ $(function() { // on dom ready
     var url = 'http://localhost:8888/cy/artist?id=' + Utilities.getAllUrlParams().id + '&name=' + Utilities.getAllUrlParams().name;
 
     /**
-     * [getMethods description]
-     * @param  {[type]} obj [description]
-     * @return {[type]}     [description]
-     */
-    var getMethods = function(obj) {
-        var res = [];
-        for (var m in obj) {
-            if (typeof obj[m] == "function") {
-                res.push(m)
-                console.log(m);
-            }
-        }
-        return res;
-    }
-
-    /**
-     * [addAlbums description]
-     * @param {[type]} ele [description]
-     */
-    var addAlbums = function (data) {
-        console.log("addAlbums artist json:" + JSON.stringify(data));
-        console.log("addAlbums:" + data.id); // `ele` holds the reference to the active element
-
-        var url = '/cy/artist/' + data.id + '/albums';
-
-        // $.ajax({
-        //     url: url,
-        //     type: 'POST',
-        //     data: '{ test: \'test\' }',
-        //     dataType: 'json',
-        //     // contentType: 'application/json',
-        //                 contentType: 'application/x-www-form-urlencoded',
-        //     success: function(response) {
-        //         console.log("search response->" + JSON.stringify(response));
-        //         cy.add(response);
-        //         cy.layout(layout).run();
-        //     }
-        // });
-                $.post({
-            url: url,
-            type: 'POST',
-            data: data,
-            dataType: 'json',
-            // contentType: 'application/json',
-                        contentType: 'application/x-www-form-urlencoded',
-            success: function(response) {
-                console.log("search response->" + JSON.stringify(response));
-                cy.add(response);
-                cy.layout(layout).run();
-            },
-            error : function (e) {
-                console.log("ERROR : ", e);
-            }
-        });
-    };
-
-    /**
      * [addRootNode description]
      */
     var addRootNode = function () {
@@ -92,24 +35,54 @@ $(function() { // on dom ready
     //Node and edge array
     var el = [];
 
+    // var layout = {
+    //     name: 'concentric',
+    //     concentric: function(node) {
+    //         return node.degree();
+    //     },
+    //     levelWidth: function(nodes) {
+    //         return 2;
+    //     }
+    // };
+
     var layout = {
-        name: 'concentric',
-        concentric: function(node) {
-            return node.degree();
-        },
-        levelWidth: function(nodes) {
-            return 2;
-        }
-    };
+        name: 'cose',
+        idealEdgeLength: 100,
+        nodeOverlap: 20
+      };
 
     var style = [ // the stylesheet for the graph
         {
-            selector: 'node',
+            selector: 'node[type="artist"]',
             style: {
                 'height': 80,
                 'width': 80,
                 'background-fit': 'cover',
-                'border-color': '#000',
+                'border-color': '#76eec6',
+                'border-width': 3,
+                'border-opacity': 0.5,
+                // 'label': 'data(id)'
+                'label': 'data(name)'
+            }
+        },         {
+            selector: 'node[type="album"]',
+            style: {
+                'height': 80,
+                'width': 80,
+                'background-fit': 'cover',
+                'border-color': '#bf3eff',
+                'border-width': 3,
+                'border-opacity': 0.5,
+                // 'label': 'data(id)'
+                'label': 'data(name)'
+            }
+        }, {
+            selector: 'node[type="track"]',
+            style: {
+                'height': 80,
+                'width': 80,
+                'background-fit': 'cover',
+                'border-color': '#76eec6',
                 'border-width': 3,
                 'border-opacity': 0.5,
                 // 'label': 'data(id)'
@@ -145,18 +118,58 @@ $(function() { // on dom ready
     // demo your core ext
     cy.contextMenus({
         menuItems: [{
-            id: 'add-ablums',
+            id: 'add-albums',
             content: 'add albums',
             tooltipText: 'add albums',
-            selector: 'node',
+            selector: 'node[type="artist"]',
             onClickFunction: function(event) {
                 try {
-
+                    Buttons.addAlbumsEvent(event, cy, layout);
+                } catch (err) {
+                    console.log("ERROR:" + err.message);
+                }
+            },
+            hasTrailingDivider: false
+        }, {
+            id: 'add-related-artists',
+            content: 'add related artists',
+            tooltipText: 'add related artists',
+            selector: 'node[type="artist"]',
+            onClickFunction: function(event) {
+                try {
+                    Buttons.addRelatedArtistsEvent(event, cy, layout);
+                } catch (err) {
+                    console.log("ERROR:" + err.message);
+                }
+            },
+            hasTrailingDivider: false
+        }, {
+            id: 'add-album-tracks',
+            content: 'add album tracks',
+            tooltipText: 'add album tracks',
+            selector: 'node[type="album"]',
+            onClickFunction: function(event) {
+                try {
+                    Buttons.addTracksEvent(event, cy, layout);
+                } catch (err) {
+                    console.log("ERROR:" + err.message);
+                    // console.log(JSON.stringify(err));
+                }
+            },
+            hasTrailingDivider: false
+        }, {
+            id: 'add-top-tracks',
+            content: 'add top tracks',
+            tooltipText: 'add top tracks',
+            selector: 'node[type="artist"]',
+            onClickFunction: function(event) {
+                try {
+                    Buttons.addRelatedArtistsEvent(event, cy, layout);
                     // console.log("EVENT:" + JSON.stringify(event));
-                    var target = event.target || event.cyTarget;
+                    // var target = event.target || event.cyTarget;
                     // getMethods(target);
-                    console.log(target.data());
-                    addAlbums(target.data());
+                    // console.log(target.data());
+                    // addAlbums(target.data());
                     // console.log(JSON.stringify(target));
                     // console.log("TARGET:" + JSON.stringify(target));
                     // target.remove();

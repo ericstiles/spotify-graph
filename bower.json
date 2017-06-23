@@ -18,7 +18,6 @@
   "dependencies": {
     "cytoscape": "^3.1.1",
     "jquery": "^3.2.1",
-    "cytoscape-cxtmenu": "^2.10.3",
     "cytoscape-context-menus": "^3.0.0",
     "cytoscape-expand-collapse": "^3.0.3"
   }
